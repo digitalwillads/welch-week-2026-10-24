@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Welch · Welch ads, Oct 18 to Oct 24</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f5f3;--card:#ffffff;--ink:#141310;--muted:#6e6e73;--brand:#d70926;--accent:#f2a9b3;--bad:#d70926;--good:#2f7d4e;--line:#e4e2df;--plain:color-mix(in srgb,var(--muted) 42%,color-mix(in srgb,var(--accent) 40%,var(--bg)));--soft:color-mix(in srgb,var(--ink) 60%,var(--muted))}
+/* The report look (the Mokomoko recovery deck, 2026-10-02). The colors come from the client's brand as :root
+   variables, written by render.rs above this file: --bg --card --ink --muted --brand --accent --bad --good --line,
+   and two mixed from them: --plain (a quiet bar or dot) and --soft (body text a little lighter than the ink).
+
+   Two layouts:
+   - The stage (a laptop or larger): one 1280 x 720 slide at a time, scaled to fit the window, moved by keys, clicks,
+     and swipes. The stage is never scaled below 0.85, so the smallest text (16.5 px) reads at 14 px or more.
+   - The page (a phone, a tablet, a short window): every slide is a full-width section, one under the other, read by
+     scrolling. Each section animates in when it scrolls into view. Charts switch to their phone drawing.
+   The page layout's media query is the same in deck.js (PAGE): change both together. It is for screens only: a print
+   is always the stage's slides, one a page. */
+
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,sans-serif;overflow:hidden}
+p,li{text-wrap:pretty}
+/* Short blocks wrap balanced, so no line ends with one word alone (Will: no orphan words, 2026-09-15). */
+.tile b,.tile span,.fixes b,.fixes span,.cap,.stats span,.lead{text-wrap:balance}
+h1,h2{text-wrap:balance}
+.stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;transform-origin:center}
+section{position:absolute;inset:0;padding:64px 100px;display:flex;flex-direction:column;gap:18px;opacity:0;pointer-events:none;transition:opacity .5s}
+section.active{opacity:1;pointer-events:auto}
+.kicker{font-size:16.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--brand)}
+h1{font-size:58px;line-height:1.08;font-weight:800;letter-spacing:-.02em;max-width:900px}
+h2{font-size:42px;line-height:1.12;font-weight:800;letter-spacing:-.02em}
+.lead{font-size:21px;line-height:1.45;color:var(--soft);max-width:1000px}
+.cap{font-size:16.5px;color:var(--muted);margin-top:6px}
+.title{justify-content:center;gap:26px}
+.title .logo{height:96px;width:auto;max-width:320px;object-fit:contain;border-radius:22px;align-self:flex-start}
+.sub{font-size:20px;color:var(--muted)}
+.anim{opacity:0;transform:translateY(18px)}
+.active .anim{animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:var(--d,0s)}
+@keyframes rise{to{opacity:1;transform:none}}
+
+/* Charts: inline SVG. Each chart is drawn twice: .big for the stage, .phone (a narrow drawing with bigger labels)
+   for the page layout. A tone class sets --c, the color its bars, line, and dots take. */
+.t-plain{--c:var(--plain)} .t-bad{--c:var(--bad)} .t-good{--c:var(--good)} .t-brand{--c:var(--brand)} .t-accent{--c:var(--accent)}
+.chart{width:100%;height:auto;overflow:visible;display:block}
+.chart.phone{display:none}
+.chart .bar{fill:var(--c);transform-box:fill-box;transform-origin:bottom;transform:scaleY(0)}
+.active .chart .bar{animation:grow .5s ease-out forwards;animation-delay:calc(.35s + var(--i)*6ms)}
+@keyframes grow{to{transform:scaleY(1)}}
+.chart .axis{font-size:14px;fill:var(--muted)}
+.chart .axis.halo{paint-order:stroke;stroke:var(--bg);stroke-width:4px;stroke-linejoin:round}
+.chart .val{font-size:15px;font-weight:700;fill:var(--ink)}
+.chart .rowlbl{font-size:16px;fill:var(--ink)}
+.chart .grid{stroke:var(--line);stroke-width:1}
+.chart .mark{stroke:var(--ink);stroke-dasharray:4 4;stroke-width:1.5}
+.chart .note{font-size:14px;font-weight:600;fill:var(--ink)}
+.chart .line{fill:none;stroke:var(--c);stroke-width:3;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1}
+.active .chart .line{animation:draw 2.2s ease-in-out .4s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.chart .hit{fill:transparent;cursor:crosshair}
+.chart .hov{fill:var(--c);stroke:#fff;stroke-width:3;opacity:0;pointer-events:none;transition:opacity .15s}
+.chart .hovline{stroke:var(--ink);stroke-width:1;opacity:0;pointer-events:none}
+.chart.hovering .hovline{opacity:.35} .chart.hovering .hov.on{opacity:1}
+.chart .wdot{fill:var(--c);opacity:0}
+.chart .wval{font-size:15px;font-weight:700;fill:var(--ink);opacity:0}
+.active .chart .wdot,.active .chart .wval{animation:fade .3s ease-out forwards;animation-delay:calc(.5s + var(--i)*110ms)}
+@keyframes fade{to{opacity:1}}
+.chart .hbar{fill:var(--c);transform-box:fill-box;transform-origin:left;transform:scaleX(0)}
+.active .chart .hbar{animation:growx .9s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:calc(.5s + var(--i)*40ms)}
+@keyframes growx{to{transform:scaleX(1)}}
+.chart.small{max-width:820px}
+.chart.phone .axis,.chart.phone .note,.chart.phone .val,.chart.phone .wval{font-size:13px}
+.chart.phone .rowlbl{font-size:14px} .chart.phone .line{stroke-width:2.5}
+.tip{position:fixed;z-index:9;pointer-events:none;background:var(--ink);color:#fff;font-size:14px;font-weight:600;padding:8px 12px;border-radius:8px;white-space:nowrap;opacity:0;transform:translate(-50%,calc(-100% - 14px));transition:opacity .12s}
+.tip.on{opacity:1}
+
+/* Views of one chart with a toggle (Daily / Weekly). */
+.views{position:relative}
+.views .v{display:none} .views .v.on{display:block}
+.toggle{position:absolute;right:0;top:-58px;display:flex;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px;z-index:2}
+.toggle button{font:600 16.5px Inter,system-ui,sans-serif;color:var(--muted);background:none;border:0;border-radius:999px;padding:8px 18px;cursor:pointer}
+.toggle button.on{background:var(--brand);color:#fff}
+
+.stats{display:flex;align-items:center;gap:28px}
+.stats div{display:flex;flex-direction:column}
+.stats em{font-style:normal;font-size:52px;font-weight:800;letter-spacing:-.02em}
+.stats span{font-size:16.5px;color:var(--muted)}
+.stats .arrow{font-size:40px;color:var(--muted)}
+.bad,.bad em,.bad b{color:var(--bad)} .good,.good em,.good b{color:var(--good)}
+.brandtone,.brandtone em,.brandtone b{color:var(--brand)} .accenttone,.accenttone em,.accenttone b{color:var(--accent)}
+p.good,p.bad{font-size:19px;font-weight:600}
+.legend{white-space:nowrap}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin:0 4px 0 10px;vertical-align:-1px;background:var(--c)}
+
+/* A chart with a short list beside it. */
+.split{display:grid;grid-template-columns:3fr 1fr;gap:36px;align-items:end}
+.months{display:flex;flex-direction:column;gap:8px}
+.months .top{margin:0 0 4px}
+.months div{display:flex;justify-content:space-between;align-items:baseline;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 16px}
+.months span{color:var(--muted);font-size:16.5px} .months b{font-size:30px;font-weight:800}
+
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:6px}
+.tile{--d:0s;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:8px;min-height:170px}
+.tile b{font-size:19px} .tile span{font-size:16.5px;line-height:1.4;color:var(--soft)}
+.ck{width:30px;height:30px;flex:none;border-radius:50%;background:var(--good);padding:5px}
+.ck path{fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:24;stroke-dashoffset:24}
+.active .ck path{animation:tick .5s ease-out forwards;animation-delay:calc(var(--d) + .3s)}
+@keyframes tick{to{stroke-dashoffset:0}}
+
+/* A section's opening slide (the client's question before its answers): the words in the middle, a little bigger. */
+.divider{justify-content:center}
+.divider h2{font-size:48px;max-width:1000px}
+.divider .lead{font-size:23px}
+
+/* A table: a list the reader checks item by item (the negatives a plan adds). Its text stays at 16.5 px, so it reads at
+   14 px on the smallest stage. */
+.list{width:100%;border-collapse:separate;border-spacing:0;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;font-size:16.5px;line-height:1.25}
+.list th,.list td{padding:3px 16px;text-align:left;vertical-align:top;border-top:1px solid var(--line)}
+.list thead th{border-top:0;font-weight:600;color:var(--muted)}
+.list td{color:var(--soft)}
+.list td:first-child{color:var(--ink);font-weight:600;white-space:nowrap}
+.list .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.list tr.group th{background:color-mix(in srgb,var(--brand) 9%,var(--card));color:var(--brand);font-weight:700}
+.list tr.bad td{color:var(--bad)} .list tr.good td{color:var(--good)}
+
+/* Search result mock-ups. */
+.serps{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:8px}
+.serp{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px 26px;display:flex;flex-direction:column;gap:14px}
+.serp .q{border:1px solid #dadce0;border-radius:24px;padding:10px 20px;font-size:18px;color:#202124}
+.serp ol{padding-left:22px;display:flex;flex-direction:column;gap:10px}
+.serp li b{display:block;font-size:17px;color:#1a0dab;font-weight:500}
+.serp li span{font-size:16.5px;color:var(--muted)}
+.serp li.us b{color:var(--good);font-weight:700}
+
+/* Numbered steps. */
+.fixes{list-style:none;padding:0;display:flex;flex-direction:column;gap:14px;margin-top:6px}
+.fixes li{display:flex;gap:18px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 22px}
+.fixes i{font-style:normal;font-size:17px;flex:none;width:36px;height:36px;border-radius:50%;background:var(--brand);color:#fff;display:grid;place-items:center;font-weight:700}
+.fixes li>div{flex:1}
+.fixes b{display:block;font-size:20px} .fixes span{font-size:16.5px;color:var(--soft);line-height:1.4}
+.fixes .when{font-style:normal;flex:none;font-size:16.5px;font-weight:600;color:var(--brand);align-self:center}
+
+nav{position:fixed;left:0;right:0;bottom:0;height:4px;background:var(--line)}
+nav i{display:block;height:100%;background:var(--brand);transition:width .4s}
+.count{position:fixed;right:18px;bottom:12px;font-size:14px;color:var(--muted)}
+.hint{position:fixed;left:18px;bottom:12px;font-size:14px;color:var(--muted)}
+
+/* The page layout: phones, tablets, short windows. Keep in step with PAGE in deck.js. */
+@media screen and (max-width:1087px),screen and (max-height:611px){
+  html,body{height:auto;overflow-x:hidden;overflow-y:visible}
+  .stage{position:static;width:auto;height:auto;transform:none!important}
+  section{position:relative;inset:auto;padding:44px 16px;gap:16px;opacity:1;pointer-events:auto;border-bottom:1px solid var(--line)}
+  section:last-child{border-bottom:0;padding-bottom:64px}
+  section.title{min-height:72vh}
+  .kicker{font-size:14px}
+  h1{font-size:36px} h2{font-size:27px;line-height:1.18}
+  .lead{font-size:17px}
+  .cap{font-size:14px}
+  .sub{font-size:16px}
+  .title .logo{height:72px;border-radius:16px}
+  .chart.big{display:none} .chart.phone{display:block}
+  .chart.small{max-width:none}
+  .chart.phone{max-width:640px}
+  .views{display:flex;flex-direction:column}
+  .toggle{position:static;align-self:flex-start;margin-bottom:12px}
+  .toggle button{font-size:15px;min-height:44px;padding:10px 20px}
+  .stats{flex-direction:column;align-items:flex-start;gap:4px}
+  .stats em{font-size:40px}
+  .stats span{font-size:14px}
+  .stats .arrow{font-size:30px;line-height:1;transform:rotate(90deg);margin:2px 0 2px 8px}
+  .split{grid-template-columns:1fr;gap:20px}
+  .months span{font-size:15px} .months b{font-size:24px}
+  .tiles{grid-template-columns:1fr;gap:10px}
+  .tile{min-height:0;padding:16px}
+  .tile b{font-size:17px} .tile span{font-size:15px}
+  section.divider{min-height:60vh;justify-content:center}
+  .divider h2{font-size:30px}
+  .divider .lead{font-size:18px}
+  .list{font-size:14px}
+  .list th,.list td{padding:6px 10px}
+  .list td:first-child{white-space:normal}
+  .serps{grid-template-columns:1fr;gap:16px}
+  .serp{padding:18px}
+  .serp li span{font-size:14px}
+  .fixes li{padding:14px 16px;gap:14px}
+  .fixes i{width:32px;height:32px}
+  .fixes b{font-size:17px} .fixes span{font-size:15px}
+  .fixes li{flex-wrap:wrap}
+  .fixes .when{font-size:14px;align-self:flex-start;margin-left:46px;width:calc(100% - 46px)}
+  p.good,p.bad{font-size:17px}
+  nav,.hint,.count{display:none}
+  .tip{white-space:normal;max-width:calc(100vw - 32px);font-size:14px}
+}
+
+/* Printed: one slide per landscape page, every slide shown, nothing moving (the still rules below), no navigation. */
+@media print{
+  @page{size:1280px 720px;margin:0}
+  html,body{height:auto;overflow:visible;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .stage{position:static;width:1280px;height:auto;transform:none!important}
+  section{position:relative;inset:auto;width:1280px;height:720px;opacity:1;overflow:hidden;background:var(--bg);break-after:page;break-inside:avoid}
+  section:last-child{break-after:auto}
+  nav,.hint,.count,.tip,.toggle{display:none!important}
+}
+
+.still *,.still *::before,.still *::after{animation:none!important;transition:none!important}
+.still .anim{opacity:1;transform:none}
+.still .chart .bar,.still .chart .hbar{transform:none}
+.still .chart .line{stroke-dashoffset:0}
+.still .chart .wdot,.still .chart .wval{opacity:1}
+.still .ck path{stroke-dashoffset:0}
+@media print{
+*,*::before,*::after{animation:none!important;transition:none!important}
+.anim{opacity:1;transform:none}
+.chart .bar,.chart .hbar{transform:none}
+.chart .line{stroke-dashoffset:0}
+.chart .wdot,.chart .wval{opacity:1}
+.ck path{stroke-dashoffset:0}
+}
+@media (prefers-reduced-motion:reduce){
+*,*::before,*::after{animation:none!important;transition:none!important}
+.anim{opacity:1;transform:none}
+.chart .bar,.chart .hbar{transform:none}
+.chart .line{stroke-dashoffset:0}
+.chart .wdot,.chart .wval{opacity:1}
+.ck path{stroke-dashoffset:0}
+}
+</style></head>
+<body><div class="stage">
+<section class="title">
+  <img class="anim logo" style="--d:.1s" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzE0IiBoZWlnaHQ9IjEyMiIgdmlld0JveD0iMCAwIDMxNCAxMjIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMF8xMzUzMF8yMjYxMDgpIj4KPHBhdGggZD0iTTU1LjE0IDQwLjUyNjlMNDMuNzU1NyA2Ny4zOTI2SDQzLjYyNzdMNDIuOTM3NCA0MC41MjY5SDI5LjA4MTRMMTYuODk1NSA2Ny4zOTI2SDE2Ljc3M0wxNi44MTc2IDQwLjUyNjlIMEwzLjQ1MTQ3IDg0LjUxMDhIMjAuNTE0TDMxLjc0NzkgNjAuMTE2N0gzMS44NzA0TDMyLjY1NTMgODQuNTEwOEg0OS43MTc4TDcxLjk1MiA0MC41MjY5SDU1LjE0WiIgZmlsbD0iIzE0MTMxMCIvPgo8cGF0aCBkPSJNNzcuOTE5NiA0MC41MjY5SDEyNC42NzZMMTIyLjM5MyA1MS4yNDMxSDkzLjAwNTlMOTEuNzUzNCA1Ny4xNjA3SDExOS4wNDJMMTE2Ljc2IDY3Ljg4MjVIODkuNDY1NEw4OC4yMTI4IDczLjc5NDVIMTE3LjU5NUwxMTUuMzEyIDg0LjUxMDhINjguNTU2Mkw3Ny45MTk2IDQwLjUyNjlaIiBmaWxsPSIjMTQxMzEwIi8+CjxwYXRoIGQ9Ik0xMzQuMjIzIDQwLjUyNjlIMTUxLjU5N0wxNDQuNzUgNzIuNjg2N0gxNzEuNjc3TDE2OS4xNjEgODQuNTEwOEgxMjQuODZMMTM0LjIyMyA0MC41MjY5WiIgZmlsbD0iIzE0MTMxMCIvPgo8cGF0aCBkPSJNMjMyLjg0IDY3LjM4NzFDMjMwLjQ5NyA3My4xODIyIDIyNy41MyA3Ny44NTg0IDIyMi41NDIgODEuMDY0OUMyMTcuNjA5IDg0LjI2NTkgMjEwLjU3OCA4Ni4wNDczIDE5OS45NzkgODYuMDQ3M0MxODkuMzggODYuMDQ3MyAxNzAuMDc0IDg1LjMwNjkgMTc0LjkyOCA2Mi41MTYxQzE3OS43NzcgMzkuNzE5NyAxOTkuNDY3IDM4Ljk4NDkgMjEwIDM4Ljk4NDlDMjIwLjUzMiAzOC45ODQ5IDIzNi4zMiA0MC4zNDMyIDIzNC44OTUgNTcuNzczMUgyMTUuMzA1QzIxNS40NzcgNTQuNjMzNCAyMTQuMzUzIDUwLjA3NDEgMjA3LjYzOSA1MC4wNzQxQzIwMC41NTggNTAuMDc0MSAxOTUuMzE0IDUzLjU4MTIgMTkzLjQxIDYyLjUxNjFDMTkxLjUxMiA3MS40NTA5IDE5NS4xMzYgNzQuOTYzNiAyMDEuNDgyIDc0Ljk2MzZDMjA2Ljk2IDc0Ljk2MzYgMjEwLjcxMiA3Mi42ODEyIDIxMy4yNTYgNjcuMzg3MUgyMzIuODQ2SDIzMi44NFoiIGZpbGw9IiMxNDEzMTAiLz4KPHBhdGggZD0iTTI3OC40NDQgNjYuOTU4NEgyNTguOTE2TDI1NS4xOCA4NC41MTA4SDIzNy44MDZMMjQ3LjE2NCA0MC41MjY5SDI2NC41MzhMMjYxLjI3NiA1NS44NjkySDI4MC44MDVMMjg0LjA2NyA0MC41MjY5SDMwMS40NDFMMjkyLjA3OCA4NC41MTA4SDI3NC43MDlMMjc4LjQ0NCA2Ni45NTg0WiIgZmlsbD0iIzE0MTMxMCIvPgo8cGF0aCBkPSJNMTI0LjAwMiAyMy43MDM5QzE3NC45MjMgMTAuODExIDIyMy4zNiAyLjYyMjA3IDI1OC41NzEgMi42MjIwN0MyOTMuNzgxIDIuNjIyMDcgMzA5Ljc2OSAxMC41MzgyIDMwNS43MjggMjMuNzA5NEwxMjQuMDAyIDIzLjY5ODNWMjMuNzAzOVoiIGZpbGw9IiNENzA5MjYiLz4KPHBhdGggZD0iTTMwOS4yMjkgNC4zNTMzQzMwOS45NyA0LjM1MzMgMzExLjA1IDQuNDc1NzcgMzExLjA1IDMuNDIzNjNDMzExLjA1IDIuNjEwODcgMzEwLjM4NyAyLjUxMDY2IDMwOS43NDcgMi41MTA2NkgzMDguMjYxVjQuMzUzM0gzMDkuMjI5Wk0zMTEuNjc5IDcuMjU5MjFIMzEwLjkxNkwzMDkuNDMgNC44NTk4OUgzMDguMjYxVjcuMjU5MjFIMzA3LjYyVjIuMDU0MThIMzA5Ljg5MkMzMTEuMjY3IDIuMDU0MTggMzExLjczNCAyLjU3MTkgMzExLjczNCAzLjQzNDc3QzMxMS43MzQgNC40NTM1MSAzMTEuMDIyIDQuODMyMDUgMzEwLjEwMyA0Ljg1OTg5TDMxMS42NzkgNy4yNTkyMVpNMzEzLjI2NSA0LjY0ODM1QzMxMy4yNjUgMi4zODI2MyAzMTEuNjE3IDAuNjE3OTI0IDMwOS4zNTIgMC42MTc5MjRDMzA3LjA4NiAwLjYxNzkyNCAzMDUuNDE2IDIuMzg4MTkgMzA1LjQxNiA0LjY0ODM1QzMwNS40MTYgNi45MDg1IDMwNy4wNzUgOC43MDY2IDMwOS4zNTIgOC43MDY2QzMxMS42MjkgOC43MDY2IDMxMy4yNjUgNi45MzYzNCAzMTMuMjY1IDQuNjQ4MzVaTTMwNC42NzUgNC42NDgzNUMzMDQuNjc1IDIuMDg3NTggMzA2Ljc2OSAwIDMwOS4zNTIgMEMzMTEuOTM1IDAgMzE0IDIuMDg3NTggMzE0IDQuNjQ4MzVDMzE0IDcuMjA5MTEgMzExLjkxOCA5LjMyNDUzIDMwOS4zNTIgOS4zMjQ1M0MzMDYuNzg1IDkuMzI0NTMgMzA0LjY3NSA3LjIzMTM4IDMwNC42NzUgNC42NDgzNVoiIGZpbGw9IiMxNDEzMTAiLz4KPHBhdGggZD0iTTgwLjc4OTYgMTA0LjQ2N0g4Mi45MzI4TDg4LjcyMjQgMTE3LjcyMkg4Ni4yNzg1TDg0Ljk0MjUgMTE0LjU0M0g3OC43MTg3TDc3LjM2NTkgMTE3LjcyMkg3NUw4MC43ODk2IDEwNC40NjdaTTg0LjA5NjMgMTEyLjQ5NUw4MS44MTk0IDEwNy4yMjhMNzkuNTY0OCAxMTIuNDk1SDg0LjA5NjNaIiBmaWxsPSIjNzE3MDczIi8+CjxwYXRoIGQ9Ik04OS43NzQ2IDEwNy43OTZIOTIuMDUxNVYxMDkuMzIyQzkyLjY5MTcgMTA4LjM5OCA5My42MTAyIDEwNy41OSA5NS4xNTIyIDEwNy41OUM5Ny4zOTAxIDEwNy41OSA5OC42ODcyIDEwOS4wOTMgOTguNjg3MiAxMTEuMzg3VjExNy43MjJIOTYuNDEwM1YxMTIuMDgzQzk2LjQxMDMgMTEwLjU0MSA5NS42NDIxIDEwOS42NTYgOTQuMjgzOCAxMDkuNjU2QzkyLjkyNTUgMTA5LjY1NiA5Mi4wNDU5IDExMC41NzQgOTIuMDQ1OSAxMTIuMTE2VjExNy43MTZIODkuNzY5VjEwNy43OTFMODkuNzc0NiAxMDcuNzk2WiIgZmlsbD0iIzcxNzA3MyIvPgo8cGF0aCBkPSJNMTA1LjU4NCAxMDQuNTYySDEwNy44OTVWMTE3LjcyMkgxMDUuNTg0VjEwNC41NjJaIiBmaWxsPSIjNzE3MDczIi8+CjxwYXRoIGQ9Ik0xMTAuMjExIDEwNy43OTZIMTEyLjQ4N1YxMDkuMzIyQzExMy4xMjggMTA4LjM5OCAxMTQuMDQ2IDEwNy41OSAxMTUuNTg4IDEwNy41OUMxMTcuODI2IDEwNy41OSAxMTkuMTIzIDEwOS4wOTMgMTE5LjEyMyAxMTEuMzg3VjExNy43MjJIMTE2Ljg0NlYxMTIuMDgzQzExNi44NDYgMTEwLjU0MSAxMTYuMDc4IDEwOS42NTYgMTE0LjcyIDEwOS42NTZDMTEzLjM2MiAxMDkuNjU2IDExMi40ODIgMTEwLjU3NCAxMTIuNDgyIDExMi4xMTZWMTE3LjcxNkgxMTAuMjA1VjEwNy43OTFMMTEwLjIxMSAxMDcuNzk2WiIgZmlsbD0iIzcxNzA3MyIvPgo8cGF0aCBkPSJNMTIwLjkwNCAxMTkuNTgxTDEyMS43NTEgMTE3Ljg3MkMxMjIuODE5IDExOC41MjkgMTIzLjkzMyAxMTguOTI1IDEyNS4yODYgMTE4LjkyNUMxMjcuMzE4IDExOC45MjUgMTI4LjQyNSAxMTcuODcyIDEyOC40MjUgMTE1Ljg3OVYxMTUuMTExQzEyNy41OTYgMTE2LjE4IDEyNi41NjYgMTE2LjkzNyAxMjQuOTI5IDExNi45MzdDMTIyLjU5NyAxMTYuOTM3IDEyMC40MiAxMTUuMjA2IDEyMC40MiAxMTIuMjk0VjExMi4yNTVDMTIwLjQyIDEwOS4zMjIgMTIyLjYxOSAxMDcuNTkgMTI0LjkyOSAxMDcuNTlDMTI2LjYwNSAxMDcuNTkgMTI3LjYzNSAxMDguMzU5IDEyOC40MDkgMTA5LjI4M1YxMDcuNzk2SDEzMC42ODVWMTE1LjY5QzEzMC42ODUgMTE3LjM2IDEzMC4yNTEgMTE4LjYwMiAxMjkuNDI3IDExOS40MzFDMTI4LjUyNiAxMjAuMzMzIDEyNy4xMzQgMTIwLjc2NyAxMjUuMzQ3IDEyMC43NjdDMTIzLjcxIDEyMC43NjcgMTIyLjE5IDEyMC4zNTUgMTIwLjkxIDExOS41ODFIMTIwLjkwNFpNMTI4LjQ0MiAxMTIuMjY3VjExMi4yMjhDMTI4LjQ0MiAxMTAuNjEzIDEyNy4xMDYgMTA5LjUgMTI1LjUzMSAxMDkuNUMxMjMuOTU1IDEwOS41IDEyMi43MTQgMTEwLjU5MSAxMjIuNzE0IDExMi4yMjhWMTEyLjI2N0MxMjIuNzE0IDExMy44ODEgMTIzLjk3MiAxMTQuOTk0IDEyNS41MzEgMTE0Ljk5NEMxMjcuMDg5IDExNC45OTQgMTI4LjQ0MiAxMTMuODg2IDEyOC40NDIgMTEyLjI2N1oiIGZpbGw9IiM3MTcwNzMiLz4KPHBhdGggZD0iTTEzMi4wNTUgMTEyLjc5NlYxMTIuNzU3QzEzMi4wNTUgMTA5LjkxNyAxMzQuMDY1IDEwNy41ODUgMTM2LjkwNCAxMDcuNTg1QzE0MC4wNiAxMDcuNTg1IDE0MS42NTggMTEwLjA2OCAxNDEuNjU4IDExMi45MjRDMTQxLjY1OCAxMTMuMTMgMTQxLjY0MSAxMTMuMzM2IDE0MS42MTkgMTEzLjU2NEgxMzQuMzI2QzEzNC41NzEgMTE1LjE3OCAxMzUuNzE4IDExNi4wODYgMTM3LjE4MiAxMTYuMDg2QzEzOC4yOSAxMTYuMDg2IDEzOS4wODEgMTE1LjY3NCAxMzkuODcxIDExNC45TDE0MS4yMDcgMTE2LjA4NkMxNDAuMjY2IDExNy4yMTYgMTM4Ljk2OSAxMTcuOTQ1IDEzNy4xNDkgMTE3Ljk0NUMxMzQuMjcxIDExNy45NDUgMTMyLjA1NSAxMTUuODU3IDEzMi4wNTUgMTEyLjc5NlpNMTM5LjQwMyAxMTIuMDYxQzEzOS4yNTMgMTEwLjU5NyAxMzguMzkgMTA5LjQ1IDEzNi44ODcgMTA5LjQ1QzEzNS40OTYgMTA5LjQ1IDEzNC41MjEgMTEwLjUxOSAxMzQuMzEgMTEyLjA2MUgxMzkuNDAzWiIgZmlsbD0iIzcxNzA3MyIvPgo8cGF0aCBkPSJNMTQzLjAxNiAxMDcuNzk2SDE0NS4yOTNWMTEwLjAzNEMxNDUuOTExIDEwOC41NDggMTQ3LjA1OCAxMDcuNTM1IDE0OC44MDYgMTA3LjYwN1YxMTAuMDEySDE0OC42NzJDMTQ2LjY3OSAxMTAuMDEyIDE0NS4yODggMTExLjMwOSAxNDUuMjg4IDExMy45NDJWMTE3LjcyMkgxNDMuMDExVjEwNy43OTZIMTQzLjAxNloiIGZpbGw9IiM3MTcwNzMiLz4KPHBhdGggZD0iTTE0OS4wMjkgMTE2LjQyNUwxNTAuMDQyIDExNC44ODNDMTUxLjEzMyAxMTUuNjkgMTUyLjI4IDExNi4xMDIgMTUzLjI5MyAxMTYuMTAyQzE1NC4zMDYgMTE2LjEwMiAxNTQuODM1IDExNS42OSAxNTQuODM1IDExNS4wMzRWMTE0Ljk5NUMxNTQuODM1IDExNC4yMjYgMTUzLjc4MyAxMTMuOTU5IDE1Mi42MTkgMTEzLjYwM0MxNTEuMTU1IDExMy4xOTEgMTQ5LjUxOCAxMTIuNTkgMTQ5LjUxOCAxMTAuNjkxVjExMC42NTJDMTQ5LjUxOCAxMDguNzcxIDE1MS4wNzcgMTA3LjYyNCAxNTMuMDUzIDEwNy42MjRDMTU0LjI5NSAxMDcuNjI0IDE1NS42NDggMTA4LjA1OCAxNTYuNyAxMDguNzU0TDE1NS43OTggMTEwLjM2OEMxNTQuODQgMTA5Ljc4NCAxNTMuODI3IDEwOS40MjggMTUyLjk5OCAxMDkuNDI4QzE1Mi4xMTMgMTA5LjQyOCAxNTEuNjA2IDEwOS44NCAxNTEuNjA2IDExMC40MDdWMTEwLjQ0NkMxNTEuNjA2IDExMS4xODEgMTUyLjY3NSAxMTEuNDgyIDE1My44NDQgMTExLjg1NUMxNTUuMjkxIDExMi4zMDYgMTU2LjkyOCAxMTIuOTYzIDE1Ni45MjggMTE0Ljc1VjExNC43ODlDMTU2LjkyOCAxMTYuODc2IDE1NS4zMTQgMTE3LjkxMiAxNTMuMjQzIDExNy45MTJDMTUxLjgzNCAxMTcuOTEyIDE1MC4yNyAxMTcuNDA1IDE0OS4wMzQgMTE2LjQyNUgxNDkuMDI5WiIgZmlsbD0iIzcxNzA3MyIvPgo8cGF0aCBkPSJNMTU3Ljc3NCAxMTIuODEyVjExMi43NzNDMTU3Ljc3NCAxMDkuOTM0IDE2MC4wMjkgMTA3LjU4NSAxNjMuMDc0IDEwNy41ODVDMTY2LjExOSAxMDcuNTg1IDE2OC4zNTcgMTA5Ljg5NSAxNjguMzU3IDExMi43MzRWMTEyLjc3M0MxNjguMzU3IDExNS41OTYgMTY2LjEwMiAxMTcuOTQ1IDE2My4wMzUgMTE3Ljk0NUMxNTkuOTY3IDExNy45NDUgMTU3Ljc2OSAxMTUuNjM1IDE1Ny43NjkgMTEyLjgxMkgxNTcuNzc0Wk0xNjYuMDg1IDExMi44MTJWMTEyLjc3M0MxNjYuMDg1IDExMS4wMjUgMTY0LjgyNyAxMDkuNTc4IDE2My4wNCAxMDkuNTc4QzE2MS4yNTMgMTA5LjU3OCAxNjAuMDUxIDExMS4wMDkgMTYwLjA1MSAxMTIuNzM0VjExMi43NzNDMTYwLjA1MSAxMTQuNTA1IDE2MS4zMDkgMTE1Ljk1MiAxNjMuMDc5IDExNS45NTJDMTY0Ljg1IDExNS45NTIgMTY2LjA4NSAxMTQuNTIxIDE2Ni4wODUgMTEyLjgxMloiIGZpbGw9IiM3MTcwNzMiLz4KPHBhdGggZD0iTTE2OS44NiAxMDRIMTcyLjEzN1YxMTcuNzIySDE2OS44NlYxMDRaIiBmaWxsPSIjNzE3MDczIi8+CjxwYXRoIGQ9Ik0xNzQuMjk3IDEwNEgxNzYuNTczVjExNy43MjJIMTc0LjI5N1YxMDRaIiBmaWxsPSIjNzE3MDczIi8+CjxwYXRoIGQ9Ik0xODMuNTY1IDEwNC41NjJIMTg5LjQzM0MxOTEuMDg2IDEwNC41NjIgMTkyLjM4MyAxMDUuMDUyIDE5My4yMyAxMDUuODc2QzE5My45MjUgMTA2LjU4OCAxOTQuMzIxIDEwNy41NjggMTk0LjMyMSAxMDguNzE1VjEwOC43NTRDMTk0LjMyMSAxMTAuOTE0IDE5My4wMjQgMTEyLjIxMSAxOTEuMTk4IDExMi43NEwxOTQuNzQ5IDExNy43MjJIMTkyLjAwNUwxODguNzcgMTEzLjEzNUgxODUuODc2VjExNy43MjJIMTgzLjU2NVYxMDQuNTYyWk0xODkuMjYgMTExLjA4NkMxOTAuOTE0IDExMS4wODYgMTkxLjk2NiAxMTAuMjI0IDE5MS45NjYgMTA4Ljg4N1YxMDguODQ5QzE5MS45NjYgMTA3LjQ0IDE5MC45NTMgMTA2LjY2NiAxODkuMjM4IDEwNi42NjZIMTg1Ljg3NlYxMTEuMDg2SDE4OS4yNloiIGZpbGw9IiM3MTcwNzMiLz4KPHBhdGggZD0iTTE5NS4yOTUgMTE0Ljg2NlYxMTQuODI3QzE5NS4yOTUgMTEyLjY4NCAxOTYuOTY1IDExMS42MzIgMTk5LjM5MiAxMTEuNjMyQzIwMC41IDExMS42MzIgMjAxLjI5IDExMS43OTkgMjAyLjA1OSAxMTIuMDQ0VjExMS43OTlDMjAyLjA1OSAxMTAuMzkgMjAxLjE5NiAxMDkuNjM5IDE5OS41OTggMTA5LjYzOUMxOTguNDkgMTA5LjYzOSAxOTcuNjYxIDEwOS44ODQgMTk2Ljc1OSAxMTAuMjU3TDE5Ni4xNTggMTA4LjQ3QzE5Ny4yNDkgMTA3Ljk4IDE5OC4zMTggMTA3LjY2MyAxOTkuODk5IDEwNy42NjNDMjAxLjM4NSAxMDcuNjYzIDIwMi40OTMgMTA4LjA1OCAyMDMuMTg5IDEwOC43N0MyMDMuOTI0IDEwOS40ODMgMjA0LjI1OCAxMTAuNTM1IDIwNC4yNTggMTExLjgzMlYxMTcuNzE2SDIwMi4wNDJWMTE2LjQ3NUMyMDEuMzYzIDExNy4yODIgMjAwLjMzMyAxMTcuOTIyIDE5OC44MDggMTE3LjkyMkMxOTYuOTQ4IDExNy45MjIgMTk1LjI5NSAxMTYuODU0IDE5NS4yOTUgMTE0Ljg2MVYxMTQuODY2Wk0yMDIuMDk4IDExNC4xNTRWMTEzLjQ3NEMyMDEuNTEzIDExMy4yNDYgMjAwLjc0NSAxMTMuMDc5IDE5OS44NDMgMTEzLjA3OUMxOTguMzc5IDExMy4wNzkgMTk3LjUxMSAxMTMuNjk3IDE5Ny41MTEgMTE0LjczM1YxMTQuNzcyQzE5Ny41MTEgMTE1LjcyOSAxOTguMzU3IDExNi4yNzUgMTk5LjQ0OCAxMTYuMjc1QzIwMC45NTEgMTE2LjI3NSAyMDIuMDk4IDExNS40MTIgMjAyLjA5OCAxMTQuMTQ4VjExNC4xNTRaIiBmaWxsPSIjNzE3MDczIi8+CjxwYXRoIGQ9Ik0yMDYuMDUgMTA3Ljc5NkgyMDguMzI3VjEwOS4zMjJDMjA4Ljk2NyAxMDguMzk4IDIwOS44ODYgMTA3LjU5IDIxMS40MjggMTA3LjU5QzIxMy42NjYgMTA3LjU5IDIxNC45NjMgMTA5LjA5MyAyMTQuOTYzIDExMS4zODdWMTE3LjcyMkgyMTIuNjg2VjExMi4wODNDMjEyLjY4NiAxMTAuNTQxIDIxMS45MTggMTA5LjY1NiAyMTAuNTU5IDEwOS42NTZDMjA5LjIwMSAxMDkuNjU2IDIwOC4zMjEgMTEwLjU3NCAyMDguMzIxIDExMi4xMTZWMTE3LjcxNkgyMDYuMDQ0VjEwNy43OTFMMjA2LjA1IDEwNy43OTZaIiBmaWxsPSIjNzE3MDczIi8+CjxwYXRoIGQ9Ik0yMTYuMjU0IDExMi43NzlWMTEyLjc0QzIxNi4yNTQgMTA5LjQ1IDIxOC40OTIgMTA3LjU5MSAyMjAuODU4IDEwNy41OTFDMjIyLjQ5NSAxMDcuNTkxIDIyMy41MjUgMTA4LjM5OCAyMjQuMjQzIDEwOS4zMzlWMTA0SDIyNi41MTlWMTE3LjcyMkgyMjQuMjQzVjExNi4wNjlDMjIzLjUwOCAxMTcuMTA0IDIyMi40NzggMTE3LjkyOCAyMjAuODU4IDExNy45MjhDMjE4LjUyNSAxMTcuOTI4IDIxNi4yNTQgMTE2LjA2OSAyMTYuMjU0IDExMi43NzlaTTIyNC4yODIgMTEyLjc3OVYxMTIuNzRDMjI0LjI4MiAxMTAuODI1IDIyMi45MjkgMTA5LjU2MSAyMjEuNDA0IDEwOS41NjFDMjE5Ljg3OCAxMDkuNTYxIDIxOC41NDggMTEwLjc2NCAyMTguNTQ4IDExMi43NFYxMTIuNzc5QzIxOC41NDggMTE0LjY5NCAyMTkuODYxIDExNS45NTggMjIxLjQwNCAxMTUuOTU4QzIyMi45NDYgMTE1Ljk1OCAyMjQuMjgyIDExNC42NzcgMjI0LjI4MiAxMTIuNzc5WiIgZmlsbD0iIzcxNzA3MyIvPgo8cGF0aCBkPSJNMjMzLjQgMTA0LjU2MkgyMzkuMzAxQzI0MC44MDQgMTA0LjU2MiAyNDEuOTkgMTA0Ljk3NCAyNDIuNzQxIDEwNS43MjVDMjQzLjMyNiAxMDYuMzEgMjQzLjYyNiAxMDcuMDIzIDI0My42MjYgMTA3LjkwOFYxMDcuOTQ3QzI0My42MjYgMTA5LjUyOCAyNDIuNzI1IDExMC4zNzQgMjQxLjc0NSAxMTAuODhDMjQzLjI4NyAxMTEuNDA5IDI0NC4zNTYgMTEyLjI4OSAyNDQuMzU2IDExNC4wNzZWMTE0LjExNUMyNDQuMzU2IDExNi40NjQgMjQyLjQxOCAxMTcuNzIyIDIzOS40ODUgMTE3LjcyMkgyMzMuMzk1VjEwNC41NjJIMjMzLjRaTTI0MS4zMTYgMTA4LjI4NkMyNDEuMzE2IDEwNy4yNTEgMjQwLjQ4NyAxMDYuNjExIDIzOS4wMDYgMTA2LjYxMUgyMzUuNjc3VjExMC4xMDdIMjM4LjgzM0MyNDAuMzIgMTEwLjEwNyAyNDEuMzE2IDEwOS41MjIgMjQxLjMxNiAxMDguMzJWMTA4LjI4MVYxMDguMjg2Wk0yMzkuMzQ2IDExMi4wNjZIMjM1LjY4M1YxMTUuNjc0SDIzOS41MThDMjQxLjA5OSAxMTUuNjc0IDI0Mi4wNTcgMTE1LjA1NiAyNDIuMDU3IDExMy44N1YxMTMuODMxQzI0Mi4wNTcgMTEyLjcyMyAyNDEuMTcxIDExMi4wNjYgMjM5LjM1MSAxMTIuMDY2SDIzOS4zNDZaIiBmaWxsPSIjNzE3MDczIi8+CjxwYXRoIGQ9Ik0yNDUuNjU4IDExNC4xMDlWMTA3Ljc5MUgyNDcuOTM1VjExMy40M0MyNDcuOTM1IDExNC45NzIgMjQ4LjcwNCAxMTUuODM1IDI1MC4wNjIgMTE1LjgzNUMyNTEuNDIgMTE1LjgzNSAyNTIuMyAxMTQuOTMzIDI1Mi4zIDExMy4zOTFWMTA3Ljc5MUgyNTQuNTkzVjExNy43MTdIMjUyLjNWMTE2LjE3NUMyNTEuNjYgMTE3LjExNiAyNTAuNzQxIDExNy45MjMgMjQ5LjE5OSAxMTcuOTIzQzI0Ni45NjEgMTE3LjkyMyAyNDUuNjY0IDExNi40MiAyNDUuNjY0IDExNC4xMDlIMjQ1LjY1OFoiIGZpbGw9IiM3MTcwNzMiLz4KPHBhdGggZD0iTTI1NS42NzkgMTE2LjQyNUwyNTYuNjkyIDExNC44ODNDMjU3Ljc4MyAxMTUuNjkgMjU4LjkzIDExNi4xMDIgMjU5Ljk0MyAxMTYuMTAyQzI2MC45NTYgMTE2LjEwMiAyNjEuNDg1IDExNS42OSAyNjEuNDg1IDExNS4wMzRWMTE0Ljk5NUMyNjEuNDg1IDExNC4yMjYgMjYwLjQzMyAxMTMuOTU5IDI1OS4yNjQgMTEzLjYwM0MyNTcuOCAxMTMuMTkxIDI1Ni4xNjMgMTEyLjU5IDI1Ni4xNjMgMTEwLjY5MVYxMTAuNjUyQzI1Ni4xNjMgMTA4Ljc3MSAyNTcuNzIyIDEwNy42MjQgMjU5LjY5OCAxMDcuNjI0QzI2MC45NCAxMDcuNjI0IDI2Mi4yOTIgMTA4LjA1OCAyNjMuMzQ1IDEwOC43NTRMMjYyLjQ0MyAxMTAuMzY4QzI2MS40ODUgMTA5Ljc4NCAyNjAuNDcyIDEwOS40MjggMjU5LjY0MyAxMDkuNDI4QzI1OC43NTcgMTA5LjQyOCAyNTguMjUxIDEwOS44NCAyNTguMjUxIDExMC40MDdWMTEwLjQ0NkMyNTguMjUxIDExMS4xODEgMjU5LjMyIDExMS40ODIgMjYwLjQ4OSAxMTEuODU1QzI2MS45MzYgMTEyLjMwNiAyNjMuNTczIDExMi45NjMgMjYzLjU3MyAxMTQuNzVWMTE0Ljc4OUMyNjMuNTczIDExNi44NzYgMjYxLjk1OCAxMTcuOTEyIDI1OS44ODggMTE3LjkxMkMyNTguNDc5IDExNy45MTIgMjU2LjkxNSAxMTcuNDA1IDI1NS42NzkgMTE2LjQyNVoiIGZpbGw9IiM3MTcwNzMiLz4KPHBhdGggZD0iTTI2NS4wMDMgMTA0LjExMUgyNjcuNDQ3VjEwNi4yNzFIMjY1LjAwM1YxMDQuMTExWk0yNjUuMDk4IDEwNy43OTdIMjY3LjM3NVYxMTcuNzIySDI2NS4wOThWMTA3Ljc5N1oiIGZpbGw9IiM3MTcwNzMiLz4KPHBhdGggZD0iTTI2OS40MDEgMTA3Ljc5NkgyNzEuNjc4VjEwOS4zMjJDMjcyLjMxOCAxMDguMzk4IDI3My4yMzcgMTA3LjU5IDI3NC43NzkgMTA3LjU5QzI3Ny4wMTcgMTA3LjU5IDI3OC4zMTQgMTA5LjA5MyAyNzguMzE0IDExMS4zODdWMTE3LjcyMkgyNzYuMDM3VjExMi4wODNDMjc2LjAzNyAxMTAuNTQxIDI3NS4yNjkgMTA5LjY1NiAyNzMuOTEgMTA5LjY1NkMyNzIuNTUyIDEwOS42NTYgMjcxLjY3MyAxMTAuNTc0IDI3MS42NzMgMTEyLjExNlYxMTcuNzE2SDI2OS4zOTZWMTA3Ljc5MUwyNjkuNDAxIDEwNy43OTZaIiBmaWxsPSIjNzE3MDczIi8+CjxwYXRoIGQ9Ik0yNzkuNTcyIDExMi43OTZWMTEyLjc1N0MyNzkuNTcyIDEwOS45MTcgMjgxLjU4MiAxMDcuNTg1IDI4NC40MjEgMTA3LjU4NUMyODcuNTc3IDEwNy41ODUgMjg5LjE3NSAxMTAuMDY4IDI4OS4xNzUgMTEyLjkyNEMyODkuMTc1IDExMy4xMyAyODkuMTU4IDExMy4zMzYgMjg5LjEzNiAxMTMuNTY0SDI4MS44NDNDMjgyLjA4OCAxMTUuMTc4IDI4My4yMzUgMTE2LjA4NiAyODQuNjk5IDExNi4wODZDMjg1LjgwNyAxMTYuMDg2IDI4Ni41OTcgMTE1LjY3NCAyODcuMzg4IDExNC45TDI4OC43MjQgMTE2LjA4NkMyODcuNzgzIDExNy4yMTYgMjg2LjQ4NiAxMTcuOTQ1IDI4NC42NjYgMTE3Ljk0NUMyODEuNzg4IDExNy45NDUgMjc5LjU3MiAxMTUuODU3IDI3OS41NzIgMTEyLjc5NlpNMjg2LjkyIDExMi4wNjFDMjg2Ljc3IDExMC41OTcgMjg1LjkwNyAxMDkuNDUgMjg0LjQwNCAxMDkuNDVDMjgzLjAxMiAxMDkuNDUgMjgyLjAzOCAxMTAuNTE5IDI4MS44MjcgMTEyLjA2MUgyODYuOTJaIiBmaWxsPSIjNzE3MDczIi8+CjxwYXRoIGQ9Ik0yODkuNzI2IDExNi40MjVMMjkwLjczOSAxMTQuODgzQzI5MS44MyAxMTUuNjkgMjkyLjk3NyAxMTYuMTAyIDI5My45OSAxMTYuMTAyQzI5NS4wMDMgMTE2LjEwMiAyOTUuNTMyIDExNS42OSAyOTUuNTMyIDExNS4wMzRWMTE0Ljk5NUMyOTUuNTMyIDExNC4yMjYgMjk0LjQ4IDExMy45NTkgMjkzLjMxNiAxMTMuNjAzQzI5MS44NTIgMTEzLjE5MSAyOTAuMjE2IDExMi41OSAyOTAuMjE2IDExMC42OTFWMTEwLjY1MkMyOTAuMjE2IDEwOC43NzEgMjkxLjc3NCAxMDcuNjI0IDI5My43NTEgMTA3LjYyNEMyOTQuOTkyIDEwNy42MjQgMjk2LjM0NSAxMDguMDU4IDI5Ny4zOTcgMTA4Ljc1NEwyOTYuNDk1IDExMC4zNjhDMjk1LjUzOCAxMDkuNzg0IDI5NC41MTkgMTA5LjQyOCAyOTMuNjk1IDEwOS40MjhDMjkyLjgxIDEwOS40MjggMjkyLjMwMyAxMDkuODQgMjkyLjMwMyAxMTAuNDA3VjExMC40NDZDMjkyLjMwMyAxMTEuMTgxIDI5My4zNzIgMTExLjQ4MiAyOTQuNTQxIDExMS44NTVDMjk1Ljk4OSAxMTIuMzA2IDI5Ny42MjUgMTEyLjk2MyAyOTcuNjI1IDExNC43NVYxMTQuNzg5QzI5Ny42MjUgMTE2Ljg3NiAyOTYuMDExIDExNy45MTIgMjkzLjk0IDExNy45MTJDMjkyLjUzMiAxMTcuOTEyIDI5MC45NjcgMTE3LjQwNSAyODkuNzMxIDExNi40MjVIMjg5LjcyNloiIGZpbGw9IiM3MTcwNzMiLz4KPHBhdGggZD0iTTI5OC4wMTUgMTE2LjQyNUwyOTkuMDI4IDExNC44ODNDMzAwLjExOSAxMTUuNjkgMzAxLjI2NiAxMTYuMTAyIDMwMi4yNzkgMTE2LjEwMkMzMDMuMjkyIDExNi4xMDIgMzAzLjgyMSAxMTUuNjkgMzAzLjgyMSAxMTUuMDM0VjExNC45OTVDMzAzLjgyMSAxMTQuMjI2IDMwMi43NjkgMTEzLjk1OSAzMDEuNjA2IDExMy42MDNDMzAwLjE0MSAxMTMuMTkxIDI5OC41MDUgMTEyLjU5IDI5OC41MDUgMTEwLjY5MVYxMTAuNjUyQzI5OC41MDUgMTA4Ljc3MSAzMDAuMDY0IDEwNy42MjQgMzAyLjA0IDEwNy42MjRDMzAzLjI4MSAxMDcuNjI0IDMwNC42MzQgMTA4LjA1OCAzMDUuNjg2IDEwOC43NTRMMzA0Ljc4NCAxMTAuMzY4QzMwMy44MjcgMTA5Ljc4NCAzMDIuODA4IDEwOS40MjggMzAxLjk4NCAxMDkuNDI4QzMwMS4wOTkgMTA5LjQyOCAzMDAuNTkyIDEwOS44NCAzMDAuNTkyIDExMC40MDdWMTEwLjQ0NkMzMDAuNTkyIDExMS4xODEgMzAxLjY2MSAxMTEuNDgyIDMwMi44MyAxMTEuODU1QzMwNC4yNzggMTEyLjMwNiAzMDUuOTE0IDExMi45NjMgMzA1LjkxNCAxMTQuNzVWMTE0Ljc4OUMzMDUuOTE0IDExNi44NzYgMzA0LjMgMTE3LjkxMiAzMDIuMjI5IDExNy45MTJDMzAwLjgyMSAxMTcuOTEyIDI5OS4yNTYgMTE3LjQwNSAyOTguMDIgMTE2LjQyNUgyOTguMDE1WiIgZmlsbD0iIzcxNzA3MyIvPgo8L2c+CjxkZWZzPgo8Y2xpcFBhdGggaWQ9ImNsaXAwXzEzNTMwXzIyNjEwOCI+CjxyZWN0IHdpZHRoPSIzMTQiIGhlaWdodD0iMTIxLjY2NCIgZmlsbD0id2hpdGUiLz4KPC9jbGlwUGF0aD4KPC9kZWZzPgo8L3N2Zz4K" alt="Welch logo">
+  <h1 class="anim" style="--d:.25s">Welch ads, Oct 18 to Oct 24</h1>
+  <p class="anim sub" style="--d:.45s">Welch · Digital Will Ads · October 25, 2026</p>
+</section>
+<section>
+  <p class="kicker anim">Google · forms</p>
+  <h2 class="anim" style="--d:.1s">Google brought 54 forms, up from 25 forms</h2>
+  <p class="lead anim" style="--d:0.20s">The best of the last 5 weeks, by click date in GA4, the count that tracks your Salesforce leads. Non-brand went from 10 to 25 forms, brand from 15 to 25 forms.</p>
+  <div class="stats anim" style="--d:0.30s"><div><em>25</em><span>Forms, Oct 11 to Oct 17</span></div><div class="arrow">→</div><div class="good"><em>54</em><span>Forms, Oct 18 to Oct 24</span></div></div>
+  <div class="anim" style="--d:0.40s"><svg viewBox="0 0 1080 254" class="chart big" role="img"><line class="grid" x1="0" x2="1080.0" y1="160.0" y2="160.0"/><line class="grid" x1="0" x2="1080.0" y1="90.0" y2="90.0"/><rect class="bar t-plain" style="--i:0" x="32.4" y="120.9" width="151.2" height="109.1"/><rect class="bar t-plain" style="--i:1" x="248.4" y="133.0" width="151.2" height="97.0"/><rect class="bar t-plain" style="--i:2" x="464.4" y="108.1" width="151.2" height="121.9"/><rect class="bar t-plain" style="--i:3" x="680.4" y="142.8" width="151.2" height="87.2"/><rect class="bar t-good" style="--i:4" x="896.4" y="40.1" width="151.2" height="189.9"/><text class="val" x="108.0" y="112.9" text-anchor="middle">31</text><text class="val" x="324.0" y="125.0" text-anchor="middle">28</text><text class="val" x="540.0" y="100.1" text-anchor="middle">35</text><text class="val" x="756.0" y="134.8" text-anchor="middle">25</text><text class="val" x="972.0" y="32.1" text-anchor="middle">54</text><text class="axis halo" x="0" y="156.0">20</text><text class="axis halo" x="0" y="86.0">40</text><text class="axis" x="108.0" y="250.0" text-anchor="middle">Sep 20</text><text class="axis" x="324.0" y="250.0" text-anchor="middle">Sep 27</text><text class="axis" x="540.0" y="250.0" text-anchor="middle">Oct 4</text><text class="axis" x="756.0" y="250.0" text-anchor="middle">Oct 11</text><text class="axis" x="972.0" y="250.0" text-anchor="middle">Oct 18</text><rect class="hit" x="0.0" y="0" width="216.0" height="230.0" data-tip="Sep 20 to Sep 26 · 31 forms · $10,287 spend"/><rect class="hit" x="216.0" y="0" width="216.0" height="230.0" data-tip="Sep 27 to Oct 3 · 28 forms · $8,086 spend"/><rect class="hit" x="432.0" y="0" width="216.0" height="230.0" data-tip="Oct 4 to Oct 10 · 35 forms · $8,885 spend"/><rect class="hit" x="648.0" y="0" width="216.0" height="230.0" data-tip="Oct 11 to Oct 17 · 25 forms · $9,472 spend"/><rect class="hit" x="864.0" y="0" width="216.0" height="230.0" data-tip="Oct 18 to Oct 24 · 54 forms · $10,159 spend"/><line class="hovline" y1="0" y2="230.0"/><circle class="hov t-bad" r="7"/></svg><svg viewBox="0 0 360 224" class="chart phone" role="img"><line class="grid" x1="0" x2="360.0" y1="140.0" y2="140.0"/><line class="grid" x1="0" x2="360.0" y1="80.0" y2="80.0"/><rect class="bar t-plain" style="--i:0" x="10.8" y="106.5" width="50.4" height="93.5"/><rect class="bar t-plain" style="--i:1" x="82.8" y="116.9" width="50.4" height="83.1"/><rect class="bar t-plain" style="--i:2" x="154.8" y="95.5" width="50.4" height="104.5"/><rect class="bar t-plain" style="--i:3" x="226.8" y="125.3" width="50.4" height="74.7"/><rect class="bar t-good" style="--i:4" x="298.8" y="37.2" width="50.4" height="162.8"/><text class="val" x="36.0" y="98.5" text-anchor="middle">31</text><text class="val" x="108.0" y="108.9" text-anchor="middle">28</text><text class="val" x="180.0" y="87.5" text-anchor="middle">35</text><text class="val" x="252.0" y="117.3" text-anchor="middle">25</text><text class="val" x="324.0" y="29.2" text-anchor="middle">54</text><text class="axis halo" x="0" y="136.0">20</text><text class="axis halo" x="0" y="76.0">40</text><text class="axis" x="36.0" y="220.0" text-anchor="middle">Sep 20</text><text class="axis" x="108.0" y="220.0" text-anchor="middle">Sep 27</text><text class="axis" x="180.0" y="220.0" text-anchor="middle">Oct 4</text><text class="axis" x="252.0" y="220.0" text-anchor="middle">Oct 11</text><text class="axis" x="324.0" y="220.0" text-anchor="middle">Oct 18</text><rect class="hit" x="0.0" y="0" width="72.0" height="200.0" data-tip="Sep 20 to Sep 26 · 31 forms · $10,287 spend"/><rect class="hit" x="72.0" y="0" width="72.0" height="200.0" data-tip="Sep 27 to Oct 3 · 28 forms · $8,086 spend"/><rect class="hit" x="144.0" y="0" width="72.0" height="200.0" data-tip="Oct 4 to Oct 10 · 35 forms · $8,885 spend"/><rect class="hit" x="216.0" y="0" width="72.0" height="200.0" data-tip="Oct 11 to Oct 17 · 25 forms · $9,472 spend"/><rect class="hit" x="288.0" y="0" width="72.0" height="200.0" data-tip="Oct 18 to Oct 24 · 54 forms · $10,159 spend"/><line class="hovline" y1="0" y2="200.0"/><circle class="hov t-bad" r="5"/></svg><p class="cap">GA4 forms from Google ads by week, Sunday to Saturday, Sep 20 to Oct 24, by click date</p></div>
+  <p class="lead note anim" style="--d:0.50s">No Skai MQLs since Jun 26, so we check these forms against Salesforce on Monday.</p>
+</section>
+<section>
+  <p class="kicker anim">Google · cost</p>
+  <h2 class="anim" style="--d:.1s">A Google form cost $187, down from $380</h2>
+  <p class="lead anim" style="--d:0.20s">Our goal is $175 a form, and the new exact keywords are built to get us there. Spend rose 7%, from $9,472 to $10,159.</p>
+  <div class="stats anim" style="--d:0.30s"><div class="bad"><em>$380</em><span>Per form, Oct 11 to Oct 17</span></div><div class="arrow">→</div><div class="good"><em>$187</em><span>Per form, Oct 18 to Oct 24</span></div></div>
+  <div class="anim" style="--d:0.40s"><svg viewBox="0 0 1080 254" class="chart big" role="img"><line class="grid" x1="0" x2="1080.0" y1="142.5" y2="142.5"/><text class="axis" x="0" y="138.5">$175 goal</text><text class="axis" x="30.0" y="250.0" text-anchor="middle">Sep 20</text><text class="axis" x="285.0" y="250.0" text-anchor="middle">Sep 27</text><text class="axis" x="540.0" y="250.0" text-anchor="middle">Oct 4</text><text class="axis" x="795.0" y="250.0" text-anchor="middle">Oct 11</text><text class="axis" x="1050.0" y="250.0" text-anchor="middle">Oct 18</text><path class="line t-plain" pathLength="1" d="M30.0,65.0 L285.0,84.1 L540.0,102.5 L795.0,39.8 L1050.0,136.4"/><circle class="wdot t-bad" style="--i:3" cx="795.0" cy="39.8" r="5"/><circle class="wdot t-good" style="--i:4" cx="1050.0" cy="136.4" r="5"/><text class="wval" style="--i:0" x="30.0" y="51.0" text-anchor="middle">$330</text><text class="wval" style="--i:1" x="285.0" y="70.1" text-anchor="middle">$292</text><text class="wval" style="--i:2" x="540.0" y="88.5" text-anchor="middle">$255</text><text class="wval" style="--i:3" x="795.0" y="25.8" text-anchor="middle">$380</text><text class="wval" style="--i:4" x="1050.0" y="122.4" text-anchor="middle">$187</text><rect class="hit" x="-97.5" y="0" width="255.0" height="230.0" data-tip="Sep 20 to Sep 26 · $330 a form · 31 forms" data-cx="30.0" data-cy="65.0"/><rect class="hit" x="157.5" y="0" width="255.0" height="230.0" data-tip="Sep 27 to Oct 3 · $292 a form · 28 forms" data-cx="285.0" data-cy="84.1"/><rect class="hit" x="412.5" y="0" width="255.0" height="230.0" data-tip="Oct 4 to Oct 10 · $255 a form · 35 forms" data-cx="540.0" data-cy="102.5"/><rect class="hit" x="667.5" y="0" width="255.0" height="230.0" data-tip="Oct 11 to Oct 17 · $380 a form · 25 forms" data-cx="795.0" data-cy="39.8"/><rect class="hit" x="922.5" y="0" width="255.0" height="230.0" data-tip="Oct 18 to Oct 24 · $187 a form · 54 forms" data-cx="1050.0" data-cy="136.4"/><line class="hovline" y1="0" y2="230.0"/><circle class="hov t-plain" r="7"/></svg><svg viewBox="0 0 360 224" class="chart phone" role="img"><line class="grid" x1="0" x2="360.0" y1="125.0" y2="125.0"/><text class="axis" x="0" y="121.0">$175 goal</text><text class="axis" x="0.0" y="220.0">Sep 20</text><text class="axis" x="98.0" y="220.0" text-anchor="middle">Sep 27</text><text class="axis" x="180.0" y="220.0" text-anchor="middle">Oct 4</text><text class="axis" x="262.0" y="220.0" text-anchor="middle">Oct 11</text><text class="axis" x="360.0" y="220.0" text-anchor="end">Oct 18</text><path class="line t-plain" pathLength="1" d="M16.0,58.6 L98.0,75.0 L180.0,90.7 L262.0,37.0 L344.0,119.8"/><circle class="wdot t-bad" style="--i:3" cx="262.0" cy="37.0" r="4"/><circle class="wdot t-good" style="--i:4" cx="344.0" cy="119.8" r="4"/><text class="wval" style="--i:0" x="16.0" y="44.6" text-anchor="middle">$330</text><text class="wval" style="--i:1" x="98.0" y="61.0" text-anchor="middle">$292</text><text class="wval" style="--i:2" x="180.0" y="76.7" text-anchor="middle">$255</text><text class="wval" style="--i:3" x="262.0" y="23.0" text-anchor="middle">$380</text><text class="wval" style="--i:4" x="344.0" y="105.8" text-anchor="middle">$187</text><rect class="hit" x="-25.0" y="0" width="82.0" height="200.0" data-tip="Sep 20 to Sep 26 · $330 a form · 31 forms" data-cx="16.0" data-cy="58.6"/><rect class="hit" x="57.0" y="0" width="82.0" height="200.0" data-tip="Sep 27 to Oct 3 · $292 a form · 28 forms" data-cx="98.0" data-cy="75.0"/><rect class="hit" x="139.0" y="0" width="82.0" height="200.0" data-tip="Oct 4 to Oct 10 · $255 a form · 35 forms" data-cx="180.0" data-cy="90.7"/><rect class="hit" x="221.0" y="0" width="82.0" height="200.0" data-tip="Oct 11 to Oct 17 · $380 a form · 25 forms" data-cx="262.0" data-cy="37.0"/><rect class="hit" x="303.0" y="0" width="82.0" height="200.0" data-tip="Oct 18 to Oct 24 · $187 a form · 54 forms" data-cx="344.0" data-cy="119.8"/><line class="hovline" y1="0" y2="200.0"/><circle class="hov t-plain" r="5"/></svg><p class="cap">Google cost per GA4 form by week, Sunday to Saturday, Sep 20 to Oct 24, against our $175 goal</p></div>
+</section>
+<section>
+  <p class="kicker anim">New keywords · first days</p>
+  <h2 class="anim" style="--d:.1s">The 534 new exact keywords got 51 clicks in their first days</h2>
+  <p class="lead anim" style="--d:0.20s">They cost $335 from Oct 21 to Oct 24 and brought no forms yet, so this week&#39;s forms came from the keywords we had before. We judge them on Nov 5 and keep the ones that bring forms.</p>
+  <div class="stats anim" style="--d:0.30s"><div><em>51</em><span>Clicks, Oct 21 to Oct 24</span></div><div><em>$335</em><span>Spend, Oct 21 to Oct 24</span></div><div><em>0</em><span>Forms so far</span></div></div>
+</section>
+<section>
+  <p class="kicker anim">Your question · Bing</p>
+  <h2 class="anim" style="--d:.1s">Bing brought 13 conversions on $1,394, down from 18 conversions</h2>
+  <p class="lead anim" style="--d:0.20s">All 13 were forms; the week before also held $1,297 of shop orders. Dmytro tuned the North America keywords, 8 German keywords passed Microsoft&#39;s review, and our 363 exact keywords go live on Bing by Oct 28.</p>
+  <div class="anim" style="--d:0.30s"><svg viewBox="0 0 1080 254" class="chart big" role="img"><line class="grid" x1="0" x2="1080.0" y1="160.0" y2="160.0"/><line class="grid" x1="0" x2="1080.0" y1="90.0" y2="90.0"/><line class="grid" x1="0" x2="1080.0" y1="20.0" y2="20.0"/><rect class="bar t-plain" style="--i:0" x="32.4" y="34.0" width="151.2" height="196.0"/><rect class="bar t-plain" style="--i:1" x="248.4" y="90.0" width="151.2" height="140.0"/><rect class="bar t-plain" style="--i:2" x="464.4" y="139.0" width="151.2" height="91.0"/><rect class="bar t-plain" style="--i:3" x="680.4" y="104.0" width="151.2" height="126.0"/><rect class="bar t-bad" style="--i:4" x="896.4" y="139.0" width="151.2" height="91.0"/><text class="val" x="108.0" y="26.0" text-anchor="middle">28</text><text class="val" x="324.0" y="82.0" text-anchor="middle">20</text><text class="val" x="540.0" y="131.0" text-anchor="middle">13</text><text class="val" x="756.0" y="96.0" text-anchor="middle">18</text><text class="val" x="972.0" y="131.0" text-anchor="middle">13</text><text class="axis halo" x="0" y="156.0">10</text><text class="axis halo" x="0" y="86.0">20</text><text class="axis halo" x="0" y="16.0">30</text><text class="axis" x="108.0" y="250.0" text-anchor="middle">Sep 20</text><text class="axis" x="324.0" y="250.0" text-anchor="middle">Sep 27</text><text class="axis" x="540.0" y="250.0" text-anchor="middle">Oct 4</text><text class="axis" x="756.0" y="250.0" text-anchor="middle">Oct 11</text><text class="axis" x="972.0" y="250.0" text-anchor="middle">Oct 18</text><rect class="hit" x="0.0" y="0" width="216.0" height="230.0" data-tip="Sep 20 to Sep 26 · 28 conversions · $1,827"/><rect class="hit" x="216.0" y="0" width="216.0" height="230.0" data-tip="Sep 27 to Oct 3 · 20 conversions · $1,933"/><rect class="hit" x="432.0" y="0" width="216.0" height="230.0" data-tip="Oct 4 to Oct 10 · 13 conversions · $1,613"/><rect class="hit" x="648.0" y="0" width="216.0" height="230.0" data-tip="Oct 11 to Oct 17 · 18 conversions · $1,332"/><rect class="hit" x="864.0" y="0" width="216.0" height="230.0" data-tip="Oct 18 to Oct 24 · 13 conversions · $1,394"/><line class="hovline" y1="0" y2="230.0"/><circle class="hov t-bad" r="7"/></svg><svg viewBox="0 0 360 224" class="chart phone" role="img"><line class="grid" x1="0" x2="360.0" y1="140.0" y2="140.0"/><line class="grid" x1="0" x2="360.0" y1="80.0" y2="80.0"/><line class="grid" x1="0" x2="360.0" y1="20.0" y2="20.0"/><rect class="bar t-plain" style="--i:0" x="10.8" y="32.0" width="50.4" height="168.0"/><rect class="bar t-plain" style="--i:1" x="82.8" y="80.0" width="50.4" height="120.0"/><rect class="bar t-plain" style="--i:2" x="154.8" y="122.0" width="50.4" height="78.0"/><rect class="bar t-plain" style="--i:3" x="226.8" y="92.0" width="50.4" height="108.0"/><rect class="bar t-bad" style="--i:4" x="298.8" y="122.0" width="50.4" height="78.0"/><text class="val" x="36.0" y="24.0" text-anchor="middle">28</text><text class="val" x="108.0" y="72.0" text-anchor="middle">20</text><text class="val" x="180.0" y="114.0" text-anchor="middle">13</text><text class="val" x="252.0" y="84.0" text-anchor="middle">18</text><text class="val" x="324.0" y="114.0" text-anchor="middle">13</text><text class="axis halo" x="0" y="136.0">10</text><text class="axis halo" x="0" y="76.0">20</text><text class="axis halo" x="0" y="16.0">30</text><text class="axis" x="36.0" y="220.0" text-anchor="middle">Sep 20</text><text class="axis" x="108.0" y="220.0" text-anchor="middle">Sep 27</text><text class="axis" x="180.0" y="220.0" text-anchor="middle">Oct 4</text><text class="axis" x="252.0" y="220.0" text-anchor="middle">Oct 11</text><text class="axis" x="324.0" y="220.0" text-anchor="middle">Oct 18</text><rect class="hit" x="0.0" y="0" width="72.0" height="200.0" data-tip="Sep 20 to Sep 26 · 28 conversions · $1,827"/><rect class="hit" x="72.0" y="0" width="72.0" height="200.0" data-tip="Sep 27 to Oct 3 · 20 conversions · $1,933"/><rect class="hit" x="144.0" y="0" width="72.0" height="200.0" data-tip="Oct 4 to Oct 10 · 13 conversions · $1,613"/><rect class="hit" x="216.0" y="0" width="72.0" height="200.0" data-tip="Oct 11 to Oct 17 · 18 conversions · $1,332"/><rect class="hit" x="288.0" y="0" width="72.0" height="200.0" data-tip="Oct 18 to Oct 24 · 13 conversions · $1,394"/><line class="hovline" y1="0" y2="200.0"/><circle class="hov t-bad" r="5"/></svg><p class="cap">Bing conversions by week, Sunday to Saturday, Sep 20 to Oct 24, by click date, shop orders included</p></div>
+</section>
+<section>
+  <p class="kicker anim">October so far</p>
+  <h2 class="anim" style="--d:.1s">Google is on pace for about $42,300, under the $45,000 cap</h2>
+  <p class="lead anim" style="--d:0.20s">Google spent $32,098 from Oct 1 to Oct 24; the pace adds this week&#39;s spend for the last 7 days. Bing is on pace for about $6,500, over its $6,000, so we trim it Monday unless you&#39;d rather let it run.</p>
+  <div class="stats anim" style="--d:0.30s"><div><em>$45,000</em><span>Google cap, per month</span></div><div class="good"><em>$42,300</em><span>Google, October pace</span></div><div class="bad"><em>$6,500</em><span>Bing, October pace</span></div></div>
+</section>
+<section>
+  <p class="kicker anim">Your question · Shopping</p>
+  <h2 class="anim" style="--d:.1s">The Shopping ads sent 78 of their 82 clicks to pumps</h2>
+  <p class="lead anim" style="--d:0.20s">No order from them yet, so on Nov 5 we keep what sells and cut the rest. Since Oct 21 they can show every product, and the clicks still go to pumps.</p>
+  <div class="anim" style="--d:0.30s"><svg viewBox="0 0 760 260" class="chart big small" role="img"><text class="rowlbl" x="0" y="22.0">Pumps</text><rect class="hbar t-good" style="--i:0" x="0" y="32.0" width="608.8" height="18" rx="3"/><text class="val" x="618.8" y="47.0">78 clicks · $367</text><text class="rowlbl" x="0" y="86.0">Oils</text><rect class="hbar t-plain" style="--i:6" x="0" y="96.0" width="31.2" height="18" rx="3"/><text class="val" x="41.2" y="111.0">4 clicks · $31</text><text class="rowlbl" x="0" y="150.0">Kits</text><rect class="hbar t-plain" style="--i:12" x="0" y="160.0" width="0.0" height="18" rx="3"/><text class="val" x="10.0" y="175.0">0 clicks</text><text class="rowlbl" x="0" y="214.0">Parts</text><rect class="hbar t-plain" style="--i:18" x="0" y="224.0" width="0.0" height="18" rx="3"/><text class="val" x="10.0" y="239.0">0 clicks</text></svg><svg viewBox="0 0 360 236" class="chart phone" role="img"><text class="rowlbl" x="0" y="18.0">Pumps</text><rect class="hbar t-good" style="--i:0" x="0" y="26.0" width="218.8" height="16" rx="3"/><text class="val" x="226.8" y="39.0">78 clicks · $367</text><text class="rowlbl" x="0" y="76.0">Oils</text><rect class="hbar t-plain" style="--i:6" x="0" y="84.0" width="11.2" height="16" rx="3"/><text class="val" x="19.2" y="97.0">4 clicks · $31</text><text class="rowlbl" x="0" y="134.0">Kits</text><rect class="hbar t-plain" style="--i:12" x="0" y="142.0" width="0.0" height="16" rx="3"/><text class="val" x="8.0" y="155.0">0 clicks</text><text class="rowlbl" x="0" y="192.0">Parts</text><rect class="hbar t-plain" style="--i:18" x="0" y="200.0" width="0.0" height="16" rx="3"/><text class="val" x="8.0" y="213.0">0 clicks</text></svg><p class="cap">Shopping ad clicks by product type, Oct 13 to Oct 24</p></div>
+  <p class="lead note anim" style="--d:0.40s">Shop orders from all our Google ads are up: $2,755 in October through Oct 24, against $2,625 in all of September, by order date.</p>
+</section>
+<section>
+  <p class="kicker anim">What we changed</p>
+  <h2 class="anim" style="--d:.1s">We made 5 sets of changes this week</h2>
+  <div class="tiles"><div class="tile anim" style="--d:0.15s"><svg viewBox="0 0 24 24" class="ck" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><b>Oct 21 and Oct 22: 534 exact keywords</b><span>245 searches that brought forms before, and 289 company names: 60 in competitor campaigns, 229 in non-brand.</span></div><div class="tile anim" style="--d:0.27s"><svg viewBox="0 0 24 24" class="ck" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><b>Oct 22: brand and APAC budgets</b><span>Brand North America $280 to $360 a day, Brand Europe $100 to $140, Non-Brand APAC $40 to $90.</span></div><div class="tile anim" style="--d:0.39s"><svg viewBox="0 0 24 24" class="ck" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><b>Oct 21 to Oct 24: 5 more budgets</b><span>North America $10 to $40 a day, Europe $35 to $60, Germany $35 to $60. Brand APAC $20 to $25, Non-Brand Germany $80 to $100.</span></div><div class="tile anim" style="--d:0.51s"><svg viewBox="0 0 24 24" class="ck" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><b>Oct 21 and Oct 22: searches blocked</b><span>16 brand searches like Gardner Denver compressors and Welch&#39;s fruit snacks, and 19 others.</span></div><div class="tile anim" style="--d:0.63s"><svg viewBox="0 0 24 24" class="ck" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><b>Oct 21 and Oct 22: Shopping and Germany</b><span>Shopping can show every product; 4 new German ads lead to German pages.</span></div></div>
+</section>
+</div><nav><i></i></nav><div class="hint">← → or click to move</div><div class="count"></div><div class="tip"></div>
+<script>
+/* The deck's moves (the Mokomoko recovery deck, 2026-10-02).
+   - The stage (a laptop): one slide at a time, scaled to fit; arrow keys, a click (right two thirds: next, left
+     third: back), or a swipe move it. The progress bar, the counter, and the address (#3) follow.
+   - The page (a phone; the same media query as deck.css): every slide is shown, one under the other. A slide
+     animates in once it scrolls into view. Clicks and swipes do not move anything; #3 scrolls to slide 3.
+   - Charts: a hover (or a tap) shows the slot's tip, a line at the slot, and the point's dot. A toggle switches the
+     views of one chart and draws the new view in again. */
+const S = [...document.querySelectorAll('section')], stage = document.querySelector('.stage');
+const bar = document.querySelector('nav i'), cnt = document.querySelector('.count'), tip = document.querySelector('.tip');
+const PAGE = matchMedia('screen and (max-width:1087px), screen and (max-height:611px)');
+let n = 0;
+const seen = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) { e.target.classList.add('active'); seen.unobserve(e.target); }
+}), { rootMargin: '0px 0px -8% 0px' });
+function fit() {
+  if (PAGE.matches) { stage.style.transform = ''; return; }
+  const s = Math.min(innerWidth / 1280, innerHeight / 720);
+  stage.style.transform = `translate(-50%,-50%) scale(${s})`;
+}
+function go(i) {
+  n = Math.max(0, Math.min(S.length - 1, i));
+  if (PAGE.matches) { if (n > 0) S[n].scrollIntoView({ block: 'start' }); return; }
+  S.forEach((s, j) => s.classList.toggle('active', j === n));
+  bar.style.width = ((n + 1) / S.length * 100) + '%';
+  cnt.textContent = (n + 1) + ' / ' + S.length;
+  history.replaceState(null, '', '#' + (n + 1));
+}
+function layout() {
+  fit();
+  if (PAGE.matches) S.forEach(s => { if (!s.classList.contains('active')) seen.observe(s); });
+  else { seen.disconnect(); go(n); }
+}
+addEventListener('keydown', e => {
+  if (PAGE.matches) return;
+  if (['ArrowRight', 'PageDown', ' '].includes(e.key)) go(n + 1);
+  if (['ArrowLeft', 'PageUp'].includes(e.key)) go(n - 1);
+  if (e.key === 'Home') go(0);
+  if (e.key === 'End') go(S.length - 1);
+});
+document.querySelectorAll('.toggle button').forEach(b => b.addEventListener('click', e => {
+  e.stopPropagation();
+  const w = b.closest('.views');
+  w.querySelectorAll('.toggle button').forEach(x => x.classList.toggle('on', x === b));
+  w.querySelectorAll('.v').forEach(v => {
+    const on = v.dataset.k === b.dataset.v;
+    if (on && !v.classList.contains('on')) { const c = v.cloneNode(true); c.classList.add('on'); v.replaceWith(c); }
+    else if (!on) v.classList.remove('on');
+  });
+}));
+addEventListener('click', e => {
+  if (PAGE.matches || e.target.closest('a,button,.toggle')) return;
+  go(e.clientX > innerWidth / 3 ? n + 1 : n - 1);
+});
+let x0 = null;
+addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
+addEventListener('touchend', e => {
+  if (x0 === null || PAGE.matches) { x0 = null; return; }
+  const dx = e.changedTouches[0].clientX - x0;
+  if (Math.abs(dx) > 40) go(dx < 0 ? n + 1 : n - 1);
+  x0 = null;
+});
+function hover(e) {
+  const h = e.target.closest && e.target.closest('[data-tip]');
+  document.querySelectorAll('.chart.hovering').forEach(c => { if (!h || !c.contains(h)) c.classList.remove('hovering'); });
+  if (!h) { tip.classList.remove('on'); return; }
+  const svg = h.ownerSVGElement, line = svg.querySelector('.hovline'), dot = svg.querySelector('.hov');
+  const x = +h.getAttribute('x') + (+h.getAttribute('width')) / 2;
+  svg.classList.add('hovering');
+  line.setAttribute('x1', x); line.setAttribute('x2', x);
+  if (h.dataset.cx) { dot.setAttribute('cx', h.dataset.cx); dot.setAttribute('cy', h.dataset.cy); dot.classList.add('on'); }
+  else dot.classList.remove('on');
+  tip.textContent = h.dataset.tip;
+  const half = Math.min(tip.offsetWidth / 2 + 8, innerWidth / 2);
+  tip.style.left = Math.min(Math.max(e.clientX, half), innerWidth - half) + 'px';
+  tip.style.top = e.clientY + 'px';
+  tip.classList.add('on');
+}
+addEventListener('pointermove', hover);
+addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') hover(e); });
+addEventListener('resize', fit);
+PAGE.addEventListener('change', layout);
+n = Math.max(0, Math.min(S.length - 1, (parseInt(location.hash.slice(1)) || 1) - 1));
+if (PAGE.matches) { S.forEach(s => s.classList.remove('active')); }
+layout();
+if (PAGE.matches) go(n);
+/* The font changes the page's height once it is in: scroll to the slide again. */
+if (document.fonts) document.fonts.ready.then(() => { if (PAGE.matches) go(n); });
+</script></body></html>
